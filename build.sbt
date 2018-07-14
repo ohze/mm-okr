@@ -16,7 +16,7 @@ lazy val fixPlayBashSettings = Seq(
 )
 
 lazy val playSettings = fixPlayBashSettings ++ Seq(
-  libraryDependencies += guice,
+  libraryDependencies ++= Seq(guice, ws),
   // set Dpidfile = /dev/null to prevent error:
   // `This application is already running (Or delete RUNNING_PID file)`
   // http://stackoverflow.com/a/29244028/457612
