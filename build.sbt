@@ -4,7 +4,7 @@ lazy val coreSettings = Seq(
   //version := use git describe. see https://github.com/sbt/sbt-git
   git.useGitDescribe := true,
   scalaVersion := D.scala,
-  name := "okr",
+  name := "mm-okr",
   organization := "com.sandinh",
   scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation", "-feature", "-target:jvm-1.8")
 )
@@ -38,7 +38,7 @@ lazy val dockerSettings = Seq(
   //dockerEntrypoint := Seq("/usr/bin/java", "-jar", "lib/" + (artifactPath in packageJavaLauncherJar).value.getName),
 ) ++ DockerHelper.settings
 
-lazy val okr = project.in(file("."))
+lazy val `mm-okr` = project.in(file("."))
   .enablePlugins(PlayScala, DockerPlugin, AshScriptPlugin, GitVersioning)
   .disablePlugins(PlayFilters)
   .settings(

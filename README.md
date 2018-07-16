@@ -1,4 +1,4 @@
-## mm-okr
+## Mattermost OKR
 
 #### Dev guide
 + run mattermost locally for dev 
