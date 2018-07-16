@@ -1,26 +1,30 @@
 package mm
 
-import javax.inject.{Inject, Singleton}
-import play.api.Configuration
+import akka.actor.ActorRef
+import javax.inject.{Inject, Named, Singleton}
+import mm.BotConversations.AddOkrs
+import mm.model.SlashData
 import play.api.libs.json.Json
-import play.api.libs.ws.WSClient
 import play.api.mvc.{Action, AnyContent, InjectedController, Request}
 
-import scala.concurrent.ExecutionContext
-
 @Singleton
-class Ctrl @Inject()(ws: WSClient, c: Configuration, implicit val ec: ExecutionContext) extends InjectedController {
-  val Api: String = c.get[String]("okr.mm.api")
-  val BearerAuth: (String, String) = {
-    val token = c.get[String]("okr.mm.token")
-    "Authorization" -> s"Bearer $token"
-  }
+class Ctrl @Inject()(c: MmConfig,
+                     @Named("bot-conversations") bot: ActorRef
+                    ) extends InjectedController {
+  private def slashOk(msg: String) = Ok(Json.obj("text" -> msg))
 
-  def test: Action[AnyContent] = Action.async { implicit request: Request[AnyContent] =>
-    val req = ws.url(s"$Api/users").withHttpHeaders(BearerAuth)
-    req.get().map { res =>
-      val users = res.json.as[List[User]]
-      Ok(Json.toJson(users))
+  def o: Action[AnyContent] = Action { implicit request: Request[AnyContent] =>
+    request.headers.get(AUTHORIZATION) match {
+      case Some(c.slashToken) =>
+        val d = SlashData.form.bindFromRequest().get
+        AddOkrs.parse(d) match {
+          case Some(a) =>
+            bot ! a
+            slashOk(s"Đã nhắc các bạn lập OKR: ${a.cmds.mkString(", ")}")
+          case _ =>
+            slashOk("Em ứ hiểu anh/chị!")
+        }
+      case _ => Unauthorized
     }
   }
 }
